@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "sys/types.h"
 #include <unistd.h>
 #include <string.h>
 #include "sys/wait.h"
+#include "sys/types.h"
 
-#define ASH_TOK_BUFFER_SIZE 64
+#define ASH_TOK_BUFFER_SIZE 256
 #define ASH_TOK_DELIM " \t\r\n\a"
-#define ASH_RL_BUFFER_SIZE 1024
+#define ASH_RL_BUFFER_SIZE 4096
 
 // prototypes
 void 	ash_loop(void);
