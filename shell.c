@@ -5,9 +5,9 @@
 #include "sys/wait.h"
 #include "sys/types.h"
 
-#define ASH_TOK_BUFFER_SIZE 256
+#define ASH_TOK_BUFFER_SIZE 64
 #define ASH_TOK_DELIM " \t\r\n\a"
-#define ASH_RL_BUFFER_SIZE 4096
+#define ASH_RL_BUFFER_SIZE 1024
 
 // prototypes
 void 	ash_loop(void);
@@ -55,42 +55,20 @@ void ash_loop(void) {
 	} while (status); // while status = 1
 }
 
+
 char *ash_read_line(void) {
-	
-	int buffer_size = ASH_RL_BUFFER_SIZE;
-	int position = 0;
-	char *buffer = malloc(sizeof(char) * buffer_size);
-	int c;
+	char *line = NULL;
+	ssize_t buffer_size = 0; // have getline allocate a buffer for us
 
-	if(!buffer) {
-		fprintf(stderr, "ash: allocation error\n");
-		exit(EXIT_FAILURE);
-	}
-
-	while(1) {
-		// read a character
-		c = getchar();
-
-		// if we hit EOL, replace it with NULL character and return
-		if(c == EOF || c == '\n') {
-			buffer[position] = '\0';
-			return buffer;
+	if(getline(&line, &buffer_size, stdin) == -1) {
+		if(feof(stdin)) {
+			exit(EXIT_SUCCESS);
 		} else {
-			buffer[position] = c;
-		}
-		position++;
-	}
-
-	// if we exceed the buffer, reallocate
-	if(position >= buffer_size) {
-		buffer_size += ASH_RL_BUFFER_SIZE;
-		buffer = realloc(buffer, buffer_size);
-		if(!buffer) {
-			fprintf(stderr, "ash: allocation error.\n");
+			perror("readline");
 			exit(EXIT_FAILURE);
 		}
 	}
-
+	return line;
 }
 
 char **ash_split_line(char *line) {
